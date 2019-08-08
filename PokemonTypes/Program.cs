@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PokemonTypes
 {
@@ -10,7 +11,7 @@ namespace PokemonTypes
         const bool Shortened = true;
 
         const string TypeEffectivenessContainer = Shortened ? ".te" : ".type-effectiveness-";
-        const string DefenderTypePrefix = Shortened ? ".dt" : ".defender-type-";
+        const string DefenderTypePrefix = Shortened ? "dt" : "defender-type-";
         const string AttackerTypePrefix = Shortened ? ".at" : ".attacker-type-";
 
         static double[,] SingleMatchup = new double[,]
@@ -121,17 +122,30 @@ namespace PokemonTypes
 
         private static void Write(List<(Type, Type, Type?)> matchups, string typeContainer)
         {
-            var grouped = matchups
-                .Where(x => x.Item1 <= x.Item2)
-                .GroupBy(x => x.Item3);
-
-            foreach (var group in grouped)
+            var rules = new List<string>();
+            foreach (var m in matchups)
             {
-                string attacker = AttackerTypePrefix + ToString(group.Key);
-                string typesList = string.Join(",", group.Select(x => DefenderTypePrefix + ToString(x.Item1) + DefenderTypePrefix + ToString(x.Item2)));
+                string attacker = AttackerTypePrefix + ToString(m.Item3);
+                string def1 = DefenderTypePrefix + ToString(m.Item1);
+                string def2 = DefenderTypePrefix + ToString(m.Item2);
 
-                Console.Write($"{TypeEffectivenessContainer}:-moz-any({typesList}) {typeContainer} {attacker}");
-                Console.WriteLine(" {display:list-item;}");
+                rules.Add($"{TypeEffectivenessContainer} input[value=\"{def1}\"]:checked~input[value=\"{def2}\"]:checked ~ {typeContainer} {attacker}");
+                if (m.Item1 == m.Item2)
+                {
+                    def2 = DefenderTypePrefix + ToString(null);
+                    rules.Add($"{TypeEffectivenessContainer} input[value=\"{def1}\"]:checked~input[value=\"{def2}\"]:checked ~ {typeContainer} {attacker}");
+                }
+            }
+
+            var chunks = rules
+                .Select((x, i) => new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 500)
+                .Select(x => x.Select(v => v.Value).ToList());
+
+            foreach (var chunk in chunks)
+            {
+                Console.Write(string.Join(",\n", chunk));
+                Console.WriteLine("\n{display:list-item;}");
             }
         }
 
