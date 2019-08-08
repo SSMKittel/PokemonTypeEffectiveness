@@ -6,6 +6,13 @@ namespace PokemonTypes
 {
     class Program
     {
+        const TypeStringMode Mode = TypeStringMode.Position;
+        const bool Shortened = true;
+
+        const string TypeEffectivenessContainer = Shortened ? ".te" : ".type-effectiveness-";
+        const string DefenderTypePrefix = Shortened ? ".dt" : ".defender-type-";
+        const string AttackerTypePrefix = Shortened ? ".at" : ".attacker-type-";
+
         static double[,] SingleMatchup = new double[,]
         {
             {1, 1, 1, 1, 1, 0.5, 1, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -30,32 +37,37 @@ namespace PokemonTypes
 
         static void Main(string[] args)
         {
+            var normal = new List<(Type, Type, Type?)>();
+            var weak = new List<(Type, Type, Type?)>();
+            var immune = new List<(Type, Type, Type?)>();
+            var resist = new List<(Type, Type, Type?)>();
+
             for (Type defender1 = Type.normal; defender1 <= Type.fairy; defender1++)
             { 
                 for (Type defender2 = Type.normal; defender2 <= Type.fairy; defender2++)
                 {
-                    var normal = new List<Type>();
-                    var weak = new List<Type>();
-                    var immune = new List<Type>();
-                    var resist = new List<Type>();
+                    var normalTmp = new List<(Type, Type, Type?)>();
+                    var weakTmp = new List<(Type, Type, Type?)>();
+                    var immuneTmp = new List<(Type, Type, Type?)>();
+                    var resistTmp = new List<(Type, Type, Type?)>();
 
                     for (Type attacker = Type.normal; attacker <= Type.fairy; attacker++)
                     {
                         if (IsNormal(attacker, defender1, defender2))
                         {
-                            normal.Add(attacker);
+                            normalTmp.Add((defender1, defender2, attacker));
                         }
                         else if (IsWeak(attacker, defender1, defender2))
                         {
-                            weak.Add(attacker);
+                            weakTmp.Add((defender1, defender2, attacker));
                         }
                         else if (IsImmune(attacker, defender1, defender2))
                         {
-                            immune.Add(attacker);
+                            immuneTmp.Add((defender1, defender2, attacker));
                         }
                         else if (IsResist(attacker, defender1, defender2))
                         {
-                            resist.Add(attacker);
+                            resistTmp.Add((defender1, defender2, attacker));
                         }
                         else
                         {
@@ -63,49 +75,63 @@ namespace PokemonTypes
                         }
                     }
 
-                    string def1 = ((int)defender1).ToString();
-                    string def2 = defender1 == defender2 ? "-" : ((int)defender2).ToString();
-
-                    if (normal.Any())
+                    if (normalTmp.Any())
                     {
-                        Console.Write(string.Join(",\n", normal.Select(t => $".te.t{def1}.t{def2} .te-n .t{(int)t}")));
+                        normal.AddRange(normalTmp);
                     }
                     else
                     {
-                        Console.Write($".te.t{def1}.t{def2} .te-n .t-");
+                        normal.Add((defender1, defender2, null));
                     }
-                    Console.WriteLine(" {\n\tdisplay: list-item;\n}\n");
 
-                    if (weak.Any())
+                    if (weakTmp.Any())
                     {
-                        Console.Write(string.Join(",\n", weak.Select(t => $".te.t{def1}.t{def2} .te-w .t{(int)t}")));
+                        weak.AddRange(weakTmp);
                     }
                     else
                     {
-                        Console.Write($".te.t{def1}.t{def2} .te-w .t-");
+                        weak.Add((defender1, defender2, null));
                     }
-                    Console.WriteLine(" {\n\tdisplay: list-item;\n}\n");
 
-                    if (immune.Any())
+                    if (immuneTmp.Any())
                     {
-                        Console.Write(string.Join(",\n", immune.Select(t => $".te.t{def1}.t{def2} .te-i .t{(int)t}")));
+                        immune.AddRange(immuneTmp);
                     }
                     else
                     {
-                        Console.Write($".te.t{def1}.t{def2} .te-i .t-");
+                        immune.Add((defender1, defender2, null));
                     }
-                    Console.WriteLine(" {\n\tdisplay: list-item;\n}\n");
 
-                    if (resist.Any())
+                    if (resistTmp.Any())
                     {
-                        Console.Write(string.Join(",\n", resist.Select(t => $".te.t{def1}.t{def2} .te-r .t{(int)t}")));
+                        resist.AddRange(resistTmp);
                     }
                     else
                     {
-                        Console.Write($".te.t{def1}.t{def2} .te-r .t-");
+                        resist.Add((defender1, defender2, null));
                     }
-                    Console.WriteLine(" {\n\tdisplay: list-item;\n}\n");
                 }
+            }
+
+            Write(normal, Shortened ? ".ten" : ".type-effectiveness-normal");
+            Write(weak, Shortened ? ".tew" : ".type-effectiveness-weak");
+            Write(immune, Shortened ? ".tei" : ".type-effectiveness-immune");
+            Write(resist, Shortened ? ".ter" : ".type-effectiveness-resist");
+        }
+
+        private static void Write(List<(Type, Type, Type?)> matchups, string typeContainer)
+        {
+            var grouped = matchups
+                .Where(x => x.Item1 <= x.Item2)
+                .GroupBy(x => x.Item3);
+
+            foreach (var group in grouped)
+            {
+                string attacker = AttackerTypePrefix + ToString(group.Key);
+                string typesList = string.Join(",", group.Select(x => DefenderTypePrefix + ToString(x.Item1) + DefenderTypePrefix + ToString(x.Item2)));
+
+                Console.Write($"{TypeEffectivenessContainer}:-moz-any({typesList}) {typeContainer} {attacker}");
+                Console.WriteLine(" {display:list-item;}");
             }
         }
 
@@ -121,7 +147,7 @@ namespace PokemonTypes
         private static bool IsResist(Type attacker, Type defender1, Type defender2)
         {
             double r = Matchup(attacker, defender1, defender2);
-            return r > 0 && r < 1;
+            return r == 0.25 || r == 0.5;
         }
 
         private static bool IsImmune(Type attacker, Type defender1, Type defender2)
@@ -132,13 +158,61 @@ namespace PokemonTypes
         private static bool IsWeak(Type attacker, Type defender1, Type defender2)
         {
             double r = Matchup(attacker, defender1, defender2);
-            return r > 1;
+            return r == 2 || r == 4;
         }
 
-        static bool IsNormal(Type attacker, Type defender1, Type defender2)
+        private static bool IsNormal(Type attacker, Type defender1, Type defender2)
         {
             return Matchup(attacker, defender1, defender2) == 1;
         }
+
+        private static string ToString(Type? t)
+        {
+            if (Mode == TypeStringMode.Position)
+            {
+                return t == null ? "-" : ((int)(t.Value)).ToString();
+            }
+            else if (Mode == TypeStringMode.String)
+            {
+                return t == null ? "-none" : t.Value.ToString();
+            }
+            else
+            {
+                if (t == null)
+                {
+                    return "-";
+                }
+                switch (t.Value)
+                {
+                    case Type.normal: return "✴";
+                    case Type.fighting: return "✊";
+                    case Type.flying: return "✈";
+                    case Type.poison: return "☠";
+                    case Type.ground: return "⏚";
+                    case Type.rock: return "⛰️";
+                    case Type.bug: return "🐛";
+                    case Type.ghost: return "👻";
+                    case Type.steel: return "✂️";
+                    case Type.fire: return "🔥";
+                    case Type.water: return "🌊";
+                    case Type.grass: return "⚘";
+                    case Type.electric: return "⚡";
+                    case Type.psychic: return "☯";
+                    case Type.ice: return "❄️";
+                    case Type.dragon: return "🐉";
+                    case Type.dark: return "🌙";
+                    case Type.fairy: return "🧚";
+                    default: throw new InvalidOperationException();
+                }
+            }
+        }
+    }
+
+    enum TypeStringMode
+    {
+        String,
+        Position,
+        Emoji
     }
 
     enum Type
