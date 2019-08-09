@@ -39,68 +39,41 @@ namespace PokemonTypes
         static void Main(string[] args)
         {
             var allMatchups = new List<(Type, Type, Type, Effectiveness)>();
-            var whitelist = new List<(Type, Type, Type?, Effectiveness)>();
-            var blacklist = new List<(Type, Type, Type, Effectiveness)>();
+            var whitelist = new List<(Type, Type?, Type?, Effectiveness)>();
+            var blacklist = new List<(Type, Type, Type?, Effectiveness)>();
 
             for (Type defender1 = Type.normal; defender1 <= Type.fairy; defender1++)
-            { 
+            {
                 for (Type defender2 = Type.normal; defender2 <= Type.fairy; defender2++)
                 {
-                    var normalTmp = new List<(Type, Type, Type)>();
-                    var weakTmp = new List<(Type, Type, Type)>();
-                    var immuneTmp = new List<(Type, Type, Type)>();
-                    var resistTmp = new List<(Type, Type, Type)>();
+                    var emptyC = GetEmptyEffectiveness(defender1, defender2);
+
+                    // Testing determined it's less css to simply output all the "None" cases
+                    // rather than trying to do single/compound logic like the type matchups
+                    foreach (var effectiveness in emptyC)
+                    {
+                        whitelist.Add((defender1, defender2, null, effectiveness));
+                        if (defender1 == defender2)
+                        {
+                            whitelist.Add((defender1, null, null, effectiveness));
+                        }
+                    }
 
                     for (Type attacker = Type.normal; attacker <= Type.fairy; attacker++)
                     {
                         Effectiveness effect = Classify(defender1, defender2, attacker);
                         switch (effect)
                         {
-                            case Effectiveness.normal: normalTmp.Add((defender1, defender2, attacker)); break;
-                            case Effectiveness.weak: weakTmp.Add((defender1, defender2, attacker)); break;
-                            case Effectiveness.immune: immuneTmp.Add((defender1, defender2, attacker)); break;
-                            case Effectiveness.resist: resistTmp.Add((defender1, defender2, attacker)); break;
+                            case Effectiveness.normal: allMatchups.Add((defender1, defender2, attacker, Effectiveness.normal)); break;
+                            case Effectiveness.weak: allMatchups.Add((defender1, defender2, attacker, Effectiveness.weak)); break;
+                            case Effectiveness.immune: allMatchups.Add((defender1, defender2, attacker, Effectiveness.immune)); break;
+                            case Effectiveness.resist: allMatchups.Add((defender1, defender2, attacker, Effectiveness.resist)); break;
                             default: throw new InvalidOperationException();
                         }
                     }
-
-                    if (normalTmp.Any())
-                    {
-                        allMatchups.AddRange(normalTmp.Select(x => (x.Item1, x.Item2, x.Item3, Effectiveness.normal)));
-                    }
-                    else
-                    {
-                        whitelist.Add((defender1, defender2, null, Effectiveness.normal));
-                    }
-
-                    if (weakTmp.Any())
-                    {
-                        allMatchups.AddRange(weakTmp.Select(x => (x.Item1, x.Item2, x.Item3, Effectiveness.weak)));
-                    }
-                    else
-                    {
-                        whitelist.Add((defender1, defender2, null, Effectiveness.weak));
-                    }
-
-                    if (immuneTmp.Any())
-                    {
-                        allMatchups.AddRange(immuneTmp.Select(x => (x.Item1, x.Item2, x.Item3, Effectiveness.immune)));
-                    }
-                    else
-                    {
-                        whitelist.Add((defender1, defender2, null, Effectiveness.immune));
-                    }
-
-                    if (resistTmp.Any())
-                    {
-                        allMatchups.AddRange(resistTmp.Select(x => (x.Item1, x.Item2, x.Item3, Effectiveness.resist)));
-                    }
-                    else
-                    {
-                        whitelist.Add((defender1, defender2, null, Effectiveness.resist));
-                    }
                 }
             }
+
 
             foreach (var matchup in allMatchups.Where(m => m.Item1 != m.Item2))
             {
@@ -129,10 +102,24 @@ namespace PokemonTypes
             Write(singleMatchups, whitelist, blacklist);
         }
 
+        private static List<Effectiveness> GetEmptyEffectiveness(Type defender1, Type defender2)
+        {
+            var results = new List<Effectiveness> { Effectiveness.normal, Effectiveness.weak, Effectiveness.immune, Effectiveness.resist };
+            for (Type attacker = Type.normal; attacker <= Type.fairy; attacker++)
+            {
+                results.Remove(Classify(defender1, defender2, attacker));
+                if (!results.Any())
+                {
+                    return results;
+                }
+            }
+            return results;
+        }
+
         private static void Write(
             List<(Type, Type, Effectiveness)> singleMatchups,
-            List<(Type, Type, Type?, Effectiveness)> whitelist,
-            List<(Type, Type, Type, Effectiveness)> blacklist)
+            List<(Type, Type?, Type?, Effectiveness)> whitelist,
+            List<(Type, Type, Type?, Effectiveness)> blacklist)
         {
             var hideRules = new List<string>();
             var showRules = new List<string>();
@@ -154,11 +141,6 @@ namespace PokemonTypes
                 string classification = ToEffectivenessString(m.Item4);
 
                 showRules.Add($".{TypeEffectivenessContainer} input[value=\"{defender1}\"]:checked~input[value=\"{defender2}\"]:checked~.{classification} .{attacker}");
-                if (m.Item1 == m.Item2)
-                {
-                    defender2 = DefenderTypePrefix + ToTypeString(null);
-                    showRules.Add($".{TypeEffectivenessContainer} input[value=\"{defender1}\"]:checked~input[value=\"{defender2}\"]:checked~.{classification} .{attacker}");
-                }
             }
 
             foreach (var m in blacklist)
@@ -197,7 +179,7 @@ namespace PokemonTypes
             }
         }
 
-        private static double Matchup(Type attacker, Type defender1, Type defender2)
+        private static double Matchup(Type defender1, Type defender2, Type attacker)
         {
             if (defender1 == defender2)
             {
@@ -208,7 +190,7 @@ namespace PokemonTypes
 
         private static Effectiveness Classify(Type defender1, Type defender2, Type attacker)
         {
-            double r = Matchup(attacker, defender1, defender2);
+            double r = Matchup(defender1, defender2, attacker);
             switch (r)
             {
                 case 0: return Effectiveness.immune;
