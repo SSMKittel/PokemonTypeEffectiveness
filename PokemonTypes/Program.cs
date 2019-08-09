@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,7 +73,6 @@ namespace PokemonTypes
                     }
                 }
             }
-
 
             foreach (var matchup in allMatchups.Where(m => m.Item1 != m.Item2))
             {

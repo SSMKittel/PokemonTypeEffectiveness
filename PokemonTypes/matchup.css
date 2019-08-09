@@ -1,24 +1,240 @@
 @charset "UTF-8"; 
 
-.te {
+.te
+{
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: flex-start;
+	align-items: center;
+	width: 75%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-h1, h2, h3 {
+@media only screen and (max-width: 991px)
+{
+	.te
+	{
+		width: 100%;
+		margin-left: 1em;
+	}
+}
+
+@media only screen and (max-width: 1199px)
+{
+	.te
+	{
+		width: 90%;
+	}
+}
+
+
+h1 + h2
+{
+	margin-top: 0;
+}
+
+h2 + h3
+{
+	margin-top: 0;
+}
+
+h1, h2, h3
+{
 	flex-basis: 100%;
 }
 
-#dt1dt-, #dt1dt-+label {
-	visibility: hidden;
+.ten, .tei, .ter, .tew
+{
+	align-self: flex-start;
 }
 
-.ten,.tei,.ter,.tew {
-	min-width: 15em;
+.break
+{
+	flex-basis: 100%;
+	height: 0;
 }
 
-.break {
-  flex-basis: 100%;
-  height: 0;
+input
+{
+	margin: 0;
+	padding: 0;
+	z-index: 1;
+	margin-right: calc(2em + 10ch);
+	margin-left: 1em;
+	width: 1em;
+}
+
+label
+{
+	padding-left: 2em !important;
+	left: calc(-2.5em - 10ch);
+	position: relative;
+	margin-left: 0;
+	margin-right: calc(-2.25em - 10ch);
+	margin-top: 0.25em;
+	margin-bottom: 0.25em;
+}
+
+.types
+{
+	display: flex;
+	flex-wrap: wrap;
+	width: calc((10ch + 0.5em + 0.5em + 1em + 1em) * 2);
+	padding-left: 0;
+	text-align: center;
+}
+
+.types > *
+{
+	width: min-content;
+	margin-bottom: 0.5em;
+	list-style: none;
+	margin-left: 0;
+	margin-right: 0.5em;
+}
+
+.at-, .at0, .at1, .at2, .at3, .at4, .at5, .at6, .at7, .at8, .at9, .at10, .at11, .at12, .at13, .at14, .at15, .at16, .at17,
+.dt-, .dt0, .dt1, .dt2, .dt3, .dt4, .dt5, .dt6, .dt7, .dt8, .dt9, .dt10, .dt11, .dt12, .dt13, .dt14, .dt15, .dt16, .dt17
+{
+	border-radius: 1.5em;
+	border-style: solid;
+	border-width: 1px;
+	padding: 0.5em;
+	width: 10ch;
+	color: white;
+	text-shadow: -1px -1px 0 rgb(82, 82, 82), 1px -1px 0 rgb(82, 82, 82), -1px 1px 0 rgb(82, 82, 82), 1px 1px 0 rgb(82, 82, 82);
+}
+
+.at-, .dt-
+{
+	/*None*/
+	background-color: dimgray;
+	border-color: dimgray;
+}
+
+.at0, .dt0
+{
+	/*Normal*/
+	background-color: rgb(173, 165, 148);
+	border-color: rgb(82, 82, 82);
+}
+
+.at1, .dt1
+{
+	/*Fighting*/
+	background-color: rgb(165, 82, 57);
+	border-color: rgb(74, 57, 49);
+}
+
+.at2, .dt2
+{
+	/*Flying*/
+	background-color: rgb(156, 173, 247);
+	border-color: rgb(66, 82, 148);
+}
+
+.at3, .dt3
+{
+	/*Poison*/
+	background-color: rgb(181, 90, 165);
+	border-color: rgb(74, 57, 82);
+}
+
+.at4, .dt4
+{
+	/*Ground*/
+	background-color: rgb(214, 181, 90);
+	border-color: rgb(115, 82, 24);
+}
+
+.at5, .dt5
+{
+	/*Rock*/
+	background-color: rgb(189, 165, 90);
+	border-color: rgb(115, 82, 24);
+}
+
+.at6, .dt6
+{
+	/*Bug*/
+	background-color: rgb(173, 189, 33);
+	border-color: rgb(66, 107, 57);
+}
+
+.at7, .dt7
+{
+	/*Ghost*/
+	background-color: rgb(99, 99, 181);
+	border-color: rgb(74, 57, 82);
+}
+
+.at8, .dt8
+{
+	/*Steel*/
+	background-color: rgb(173, 173, 198);
+	border-color: rgb(82, 82, 82);
+}
+
+.at9, .dt9
+{
+	/*Fire*/
+	background-color: rgb(247, 82, 49);
+	border-color: rgb(115, 33, 8);
+}
+
+.at10, .dt10
+{
+	/*Water*/
+	background-color: rgb(57, 156, 255);
+	border-color: rgb(66, 82, 148);
+}
+
+.at11, .dt11
+{
+	/*Grass*/
+	background-color: rgb(123, 206, 82);
+	border-color: rgb(66, 107, 57);
+}
+
+.at12, .dt12
+{
+	/*Electric*/
+	background-color: rgb(255, 198, 49);
+	border-color: rgb(115, 82, 24);
+}
+
+.at13, .dt13
+{
+	/*Psychic*/
+	background-color: rgb(255, 115, 165);
+	border-color: rgb(107, 57, 57);
+}
+
+.at14, .dt14
+{
+	/*Ice*/
+	background-color: rgb(90, 206, 231);
+	border-color: rgb(66, 82, 148);
+}
+
+.at15, .dt15
+{
+	/*Dragon*/
+	background-color: rgb(123, 99, 231);
+	border-color: rgb(74, 57, 148);
+}
+
+.at16, .dt16
+{
+	/*Dark*/
+	background-color: rgb(115, 90, 74);
+	border-color: rgb(74, 57, 49);
+}
+
+.at17, .dt17
+{
+	/*Fairy*/
+	background-color: rgb(247, 181, 247);
+	border-color: rgb(189, 24, 206);
 }
