@@ -6,12 +6,12 @@
 	flex-flow: row wrap;
 	justify-content: flex-start;
 	align-items: center;
-	width: 75%;
+	max-width: calc((3.25em + 10ch) * 9);
 	margin-left: auto;
 	margin-right: auto;
 }
 
-@media only screen and (max-width: 991px)
+@media only screen and (max-width: 1199px)
 {
 	.te
 	{
@@ -19,15 +19,6 @@
 		margin-left: 1em;
 	}
 }
-
-@media only screen and (max-width: 1199px)
-{
-	.te
-	{
-		width: 90%;
-	}
-}
-
 
 h1 + h2
 {
