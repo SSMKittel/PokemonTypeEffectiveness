@@ -13,6 +13,7 @@ namespace PokemonTypes
         const string TypeEffectivenessContainer = Shortened ? "te" : "type-effectiveness-";
         const string DefenderTypePrefix = Shortened ? "dt" : "defender-type-";
         const string AttackerTypePrefix = Shortened ? "at" : "attacker-type-";
+        const string InverseBattleTypeModifier = Shortened ? "mi" : "modifier-inverse";
 
         static double[,] SingleMatchup = new double[,]
         {
@@ -38,37 +39,50 @@ namespace PokemonTypes
 
         static void Main(string[] args)
         {
-            var allMatchups = new List<(Type, Type, Type, Effectiveness)>();
-            var whitelist = new List<(Type, Type?, Type?, Effectiveness)>();
-            var blacklist = new List<(Type, Type, Type?, Effectiveness)>();
+            var allMatchups = new List<(Type, Type, Type, Effectiveness, BattleType?)>();
+            var whitelist = new List<(Type, Type?, Type?, Effectiveness, BattleType?)>();
+            var blacklist = new List<(Type, Type, Type?, Effectiveness, BattleType?)>();
 
             for (Type defender1 = Type.normal; defender1 <= Type.fairy; defender1++)
             {
                 for (Type defender2 = Type.normal; defender2 <= Type.fairy; defender2++)
                 {
-                    var emptyC = GetEmptyEffectiveness(defender1, defender2);
-
-                    // Testing determined it's less css to simply output all the "None" cases
-                    // rather than trying to do single/compound logic like the type matchups
-                    foreach (var effectiveness in emptyC)
+                    foreach (var effectiveness in GetEmptyEffectiveness(defender1, defender2, BattleType.normal))
                     {
-                        whitelist.Add((defender1, defender2, null, effectiveness));
+                        whitelist.Add((defender1, defender2, null, effectiveness, BattleType.normal));
                         if (defender1 == defender2)
                         {
-                            whitelist.Add((defender1, null, null, effectiveness));
+                            whitelist.Add((defender1, null, null, effectiveness, BattleType.normal));
+                        }
+                    }
+
+                    foreach (var effectiveness in GetEmptyEffectiveness(defender1, defender2, BattleType.inverse))
+                    {
+                        if (effectiveness == Effectiveness.immune)
+                        {
+                            // We are hiding all immunities as there are none
+                            continue;
+                        }
+                        whitelist.Add((defender1, defender2, null, effectiveness, BattleType.inverse));
+                        if (defender1 == defender2)
+                        {
+                            whitelist.Add((defender1, null, null, effectiveness, BattleType.inverse));
                         }
                     }
 
                     for (Type attacker = Type.normal; attacker <= Type.fairy; attacker++)
                     {
-                        Effectiveness effect = Classify(defender1, defender2, attacker);
-                        switch (effect)
+                        Effectiveness effectNorm = Classify(defender1, defender2, attacker, BattleType.normal);
+                        Effectiveness effectInv = Classify(defender1, defender2, attacker, BattleType.inverse);
+                        if (effectNorm == effectInv)
                         {
-                            case Effectiveness.normal: allMatchups.Add((defender1, defender2, attacker, Effectiveness.normal)); break;
-                            case Effectiveness.weak: allMatchups.Add((defender1, defender2, attacker, Effectiveness.weak)); break;
-                            case Effectiveness.immune: allMatchups.Add((defender1, defender2, attacker, Effectiveness.immune)); break;
-                            case Effectiveness.resist: allMatchups.Add((defender1, defender2, attacker, Effectiveness.resist)); break;
-                            default: throw new InvalidOperationException();
+                            allMatchups.Add((defender1, defender2, attacker, effectNorm, null));
+                        }
+                        else
+                        {
+                            allMatchups.Add((defender1, defender2, attacker, effectNorm, BattleType.normal));
+                            allMatchups.Add((defender1, defender2, attacker, effectInv, BattleType.inverse));
+
                         }
                     }
                 }
@@ -76,37 +90,37 @@ namespace PokemonTypes
 
             foreach (var matchup in allMatchups.Where(m => m.Item1 != m.Item2))
             {
-                var match1 = Classify(matchup.Item1, matchup.Item1, matchup.Item3);
-                var match2 = Classify(matchup.Item2, matchup.Item2, matchup.Item3);
+                var match1 = Classify(matchup.Item1, matchup.Item1, matchup.Item3, matchup.Item5 ?? BattleType.normal);
+                var match2 = Classify(matchup.Item2, matchup.Item2, matchup.Item3, matchup.Item5 ?? BattleType.normal);
                 if (match1 != matchup.Item4)
                 {
-                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match1));
+                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match1, matchup.Item5));
                 }
                 if (match2 != matchup.Item4)
                 {
-                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match2));
+                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match2, matchup.Item5));
                 }
                 if (match1 != matchup.Item4 && match2 != matchup.Item4)
                 {
-                    whitelist.Add((matchup.Item1, matchup.Item2, matchup.Item3, matchup.Item4));
+                    whitelist.Add((matchup.Item1, matchup.Item2, matchup.Item3, matchup.Item4, matchup.Item5));
                 }
             }
 
-            var singleMatchups = new List<(Type, Type, Effectiveness)>(
+            var singleMatchups = new List<(Type, Type, Effectiveness, BattleType?)>(
                 allMatchups
                     .Where(m => m.Item1 == m.Item2)
-                    .Select(m => (m.Item1, m.Item3, m.Item4))
+                    .Select(m => (m.Item1, m.Item3, m.Item4, m.Item5))
             );
 
             Write(singleMatchups, whitelist, blacklist);
         }
 
-        private static List<Effectiveness> GetEmptyEffectiveness(Type defender1, Type defender2)
+        private static List<Effectiveness> GetEmptyEffectiveness(Type defender1, Type defender2, BattleType battle)
         {
             var results = new List<Effectiveness> { Effectiveness.normal, Effectiveness.weak, Effectiveness.immune, Effectiveness.resist };
             for (Type attacker = Type.normal; attacker <= Type.fairy; attacker++)
             {
-                results.Remove(Classify(defender1, defender2, attacker));
+                results.Remove(Classify(defender1, defender2, attacker, battle));
                 if (!results.Any())
                 {
                     return results;
@@ -116,9 +130,9 @@ namespace PokemonTypes
         }
 
         private static void Write(
-            List<(Type, Type, Effectiveness)> singleMatchups,
-            List<(Type, Type?, Type?, Effectiveness)> whitelist,
-            List<(Type, Type, Type?, Effectiveness)> blacklist)
+            List<(Type, Type, Effectiveness, BattleType?)> singleMatchups,
+            List<(Type, Type?, Type?, Effectiveness, BattleType?)> whitelist,
+            List<(Type, Type, Type?, Effectiveness, BattleType?)> blacklist)
         {
             var hideRules = new List<string>();
             var showRules = new List<string>();
@@ -128,8 +142,9 @@ namespace PokemonTypes
                 string defender = DefenderTypePrefix + ToTypeString(m.Item1);
                 string attacker = AttackerTypePrefix + ToTypeString(m.Item2);
                 string classification = ToEffectivenessString(m.Item3);
+                string modifiers = GetModifiersSelector(m.Item4);
 
-                showRules.Add($".{TypeEffectivenessContainer} input[value=\"{defender}\"]:checked~.{classification} .{attacker}");
+                showRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
 
             foreach (var m in whitelist)
@@ -138,8 +153,9 @@ namespace PokemonTypes
                 string defender2 = DefenderTypePrefix + ToTypeString(m.Item2);
                 string attacker = AttackerTypePrefix + ToTypeString(m.Item3);
                 string classification = ToEffectivenessString(m.Item4);
+                string modifiers = GetModifiersSelector(m.Item5);
 
-                showRules.Add($".{TypeEffectivenessContainer} input[value=\"{defender1}\"]:checked~input[value=\"{defender2}\"]:checked~.{classification} .{attacker}");
+                showRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender1}\"]:checked~*[value=\"{defender2}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
 
             foreach (var m in blacklist)
@@ -148,12 +164,14 @@ namespace PokemonTypes
                 string defender2 = DefenderTypePrefix + ToTypeString(m.Item2);
                 string attacker = AttackerTypePrefix + ToTypeString(m.Item3);
                 string classification = ToEffectivenessString(m.Item4);
+                string modifiers = GetModifiersSelector(m.Item5);
 
-                hideRules.Add($".{TypeEffectivenessContainer} input[value=\"{defender1}\"]:checked~input[value=\"{defender2}\"]:checked~.{classification} .{attacker}");
+                hideRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender1}\"]:checked~*[value=\"{defender2}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
 
             Console.Write("@charset \"UTF-8\";\n");
             Console.Write(".te .types>*{display:none}\n");
+            Console.Write($"*[value=\"{InverseBattleTypeModifier}\"]:checked~.tei{{display:none}}\n");
 
             var hideChunks = hideRules
                 .Select((x, i) => new { Index = i, Value = x })
@@ -178,6 +196,23 @@ namespace PokemonTypes
             }
         }
 
+        private static string GetModifiersSelector(BattleType? battle)
+        {
+            string modifiers = "";
+            if (battle != null)
+            {
+                if (battle == BattleType.normal)
+                {
+                    modifiers += $"~*[value=\"{InverseBattleTypeModifier}\"]:not(:checked)";
+                }
+                else
+                {
+                    modifiers += $"~*[value=\"{InverseBattleTypeModifier}\"]:checked";
+                }
+            }
+            return modifiers;
+        }
+
         private static double Matchup(Type defender1, Type defender2, Type attacker)
         {
             if (defender1 == defender2)
@@ -187,19 +222,34 @@ namespace PokemonTypes
             return SingleMatchup[(int)attacker, (int)defender1] * SingleMatchup[(int)attacker, (int)defender2];
         }
 
-        private static Effectiveness Classify(Type defender1, Type defender2, Type attacker)
+        private static Effectiveness Classify(Type defender1, Type defender2, Type attacker, BattleType battle)
         {
             double r = Matchup(defender1, defender2, attacker);
+            Effectiveness result;
             switch (r)
             {
-                case 0: return Effectiveness.immune;
+                case 0: result = Effectiveness.immune; break;
                 case 0.25:
-                case 0.5: return Effectiveness.resist;
-                case 1: return Effectiveness.normal;
+                case 0.5: result = Effectiveness.resist; break;
+                case 1: result = Effectiveness.normal; break;
                 case 2:
-                case 4: return Effectiveness.weak;
+                case 4: result = Effectiveness.weak; break;
                 default: throw new InvalidOperationException();
             }
+
+            if (battle == BattleType.inverse)
+            {
+                if (result == Effectiveness.resist || result == Effectiveness.immune)
+                {
+                    result = Effectiveness.weak;
+                }
+                else if (result == Effectiveness.weak)
+                {
+                    result = Effectiveness.resist;
+                }
+            }
+
+            return result;
         }
 
         private static string ToEffectivenessString(Effectiveness e)
@@ -254,6 +304,12 @@ namespace PokemonTypes
                 }
             }
         }
+    }
+
+    enum BattleType
+    {
+        normal,
+        inverse
     }
 
     enum Effectiveness
