@@ -39,9 +39,9 @@ namespace PokemonTypes
 
         static void Main(string[] args)
         {
-            var allMatchups = new List<(Type, Type, Type, Effectiveness, BattleType?)>();
-            var whitelist = new List<(Type, Type?, Type?, Effectiveness, BattleType?)>();
-            var blacklist = new List<(Type, Type, Type?, Effectiveness, BattleType?)>();
+            var allMatchups = new List<(Type defender1, Type defender2, Type attacker, Effectiveness effectiveness, BattleType? battle)>();
+            var whitelist = new List<(Type defender1, Type? defender2, Type? attacker, Effectiveness effectiveness, BattleType? battle)>();
+            var blacklist = new List<(Type defender1, Type defender2, Type? attacker, Effectiveness effectiveness, BattleType? battle)>();
 
             for (Type defender1 = Type.normal; defender1 <= Type.fairy; defender1++)
             {
@@ -82,34 +82,33 @@ namespace PokemonTypes
                         {
                             allMatchups.Add((defender1, defender2, attacker, effectNorm, BattleType.normal));
                             allMatchups.Add((defender1, defender2, attacker, effectInv, BattleType.inverse));
-
                         }
                     }
                 }
             }
 
-            foreach (var matchup in allMatchups.Where(m => m.Item1 != m.Item2))
+            foreach (var matchup in allMatchups.Where(m => m.defender1 != m.defender2))
             {
-                var match1 = Classify(matchup.Item1, matchup.Item1, matchup.Item3, matchup.Item5 ?? BattleType.normal);
-                var match2 = Classify(matchup.Item2, matchup.Item2, matchup.Item3, matchup.Item5 ?? BattleType.normal);
-                if (match1 != matchup.Item4)
+                var match1 = Classify(matchup.defender1, matchup.defender1, matchup.attacker, matchup.battle ?? BattleType.normal);
+                var match2 = Classify(matchup.defender2, matchup.defender2, matchup.attacker, matchup.battle ?? BattleType.normal);
+                if (match1 != matchup.effectiveness)
                 {
-                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match1, matchup.Item5));
+                    blacklist.Add((matchup.defender1, matchup.defender2, matchup.attacker, match1, matchup.battle));
                 }
-                if (match2 != matchup.Item4)
+                if (match2 != matchup.effectiveness)
                 {
-                    blacklist.Add((matchup.Item1, matchup.Item2, matchup.Item3, match2, matchup.Item5));
+                    blacklist.Add((matchup.defender1, matchup.defender2, matchup.attacker, match2, matchup.battle));
                 }
-                if (match1 != matchup.Item4 && match2 != matchup.Item4)
+                if (match1 != matchup.effectiveness && match2 != matchup.effectiveness)
                 {
-                    whitelist.Add((matchup.Item1, matchup.Item2, matchup.Item3, matchup.Item4, matchup.Item5));
+                    whitelist.Add((matchup.defender1, matchup.defender2, matchup.attacker, matchup.effectiveness, matchup.battle));
                 }
             }
 
-            var singleMatchups = new List<(Type, Type, Effectiveness, BattleType?)>(
+            var singleMatchups = new List<(Type defender, Type attacker, Effectiveness effectiveness, BattleType? battle)>(
                 allMatchups
-                    .Where(m => m.Item1 == m.Item2)
-                    .Select(m => (m.Item1, m.Item3, m.Item4, m.Item5))
+                    .Where(m => m.defender1 == m.defender2)
+                    .Select(m => (m.defender1, m.attacker, m.effectiveness, m.battle))
             );
 
             Write(singleMatchups, whitelist, blacklist);
@@ -130,41 +129,41 @@ namespace PokemonTypes
         }
 
         private static void Write(
-            List<(Type, Type, Effectiveness, BattleType?)> singleMatchups,
-            List<(Type, Type?, Type?, Effectiveness, BattleType?)> whitelist,
-            List<(Type, Type, Type?, Effectiveness, BattleType?)> blacklist)
+            List<(Type defender, Type attacker, Effectiveness effectiveness, BattleType? battle)> singleMatchups,
+            List<(Type defender1, Type? defender2, Type? attacker, Effectiveness effectiveness, BattleType? battle)> whitelist,
+            List<(Type defender1, Type defender2, Type? attacker, Effectiveness effectiveness, BattleType? battle)> blacklist)
         {
             var hideRules = new List<string>();
             var showRules = new List<string>();
 
             foreach (var m in singleMatchups)
             {
-                string defender = DefenderTypePrefix + ToTypeString(m.Item1);
-                string attacker = AttackerTypePrefix + ToTypeString(m.Item2);
-                string classification = ToEffectivenessString(m.Item3);
-                string modifiers = GetModifiersSelector(m.Item4);
+                string defender = DefenderTypePrefix + ToTypeString(m.defender);
+                string attacker = AttackerTypePrefix + ToTypeString(m.attacker);
+                string classification = ToEffectivenessString(m.effectiveness);
+                string modifiers = GetModifiersSelector(m.battle);
 
                 showRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
 
             foreach (var m in whitelist)
             {
-                string defender1 = DefenderTypePrefix + ToTypeString(m.Item1);
-                string defender2 = DefenderTypePrefix + ToTypeString(m.Item2);
-                string attacker = AttackerTypePrefix + ToTypeString(m.Item3);
-                string classification = ToEffectivenessString(m.Item4);
-                string modifiers = GetModifiersSelector(m.Item5);
+                string defender1 = DefenderTypePrefix + ToTypeString(m.defender1);
+                string defender2 = DefenderTypePrefix + ToTypeString(m.defender2);
+                string attacker = AttackerTypePrefix + ToTypeString(m.attacker);
+                string classification = ToEffectivenessString(m.effectiveness);
+                string modifiers = GetModifiersSelector(m.battle);
 
                 showRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender1}\"]:checked~*[value=\"{defender2}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
 
             foreach (var m in blacklist)
             {
-                string defender1 = DefenderTypePrefix + ToTypeString(m.Item1);
-                string defender2 = DefenderTypePrefix + ToTypeString(m.Item2);
-                string attacker = AttackerTypePrefix + ToTypeString(m.Item3);
-                string classification = ToEffectivenessString(m.Item4);
-                string modifiers = GetModifiersSelector(m.Item5);
+                string defender1 = DefenderTypePrefix + ToTypeString(m.defender1);
+                string defender2 = DefenderTypePrefix + ToTypeString(m.defender2);
+                string attacker = AttackerTypePrefix + ToTypeString(m.attacker);
+                string classification = ToEffectivenessString(m.effectiveness);
+                string modifiers = GetModifiersSelector(m.battle);
 
                 hideRules.Add($".{TypeEffectivenessContainer} *[value=\"{defender1}\"]:checked~*[value=\"{defender2}\"]:checked{modifiers}~.{classification} .{attacker}");
             }
