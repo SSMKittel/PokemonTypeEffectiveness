@@ -142,10 +142,12 @@ namespace PokemonTypes
                 .GroupBy(x => x.Index / 500)
                 .Select(x => x.Select(v => v.Value).ToList());
 
+            Console.Write("@charset \"UTF - 8\";\n");
+            Console.Write(".te .types > * {display: none;}\n");
             foreach (var chunk in chunks)
             {
                 Console.Write(string.Join(",\n", chunk));
-                Console.WriteLine("\n{display:list-item;}");
+                Console.Write("\n{display:list-item;}\n");
             }
         }
 

@@ -1,0 +1,24 @@
+@charset "UTF-8"; 
+
+.te {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: flex-start;
+}
+
+h1, h2, h3 {
+	flex-basis: 100%;
+}
+
+#dt1dt-, #dt1dt-+label {
+	visibility: hidden;
+}
+
+.ten,.tei,.ter,.tew {
+	min-width: 15em;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}

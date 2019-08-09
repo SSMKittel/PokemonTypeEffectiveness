@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="matchup.css">
+    <link rel="stylesheet" href="matchup-logic.css">
+</head>
+<body>
+<section class="te">
+	<h2>Type Effectiveness</h2>
+ 	
+	<h3>Primary Type</h3>
+    <input type="radio" name="dt1" value="dt-" id="dt1dt-"><label for="dt1dt-">None</label>
+    <input type="radio" name="dt1" value="dt0" id="dt1dt0" checked><label for="dt1dt0">Normal</label>
+    <input type="radio" name="dt1" value="dt1" id="dt1dt1"><label for="dt1dt1">Fighting</label>
+    <input type="radio" name="dt1" value="dt2" id="dt1dt2"><label for="dt1dt2">Flying</label>
+    <input type="radio" name="dt1" value="dt3" id="dt1dt3"><label for="dt1dt3">Poison</label>
+    <input type="radio" name="dt1" value="dt4" id="dt1dt4"><label for="dt1dt4">Ground</label>
+    <input type="radio" name="dt1" value="dt5" id="dt1dt5"><label for="dt1dt5">Rock</label>
+    <input type="radio" name="dt1" value="dt6" id="dt1dt6"><label for="dt1dt6">Bug</label>
+    <input type="radio" name="dt1" value="dt7" id="dt1dt7"><label for="dt1dt7">Ghost</label>
+    <input type="radio" name="dt1" value="dt8" id="dt1dt8"><label for="dt1dt8">Steel</label>
+    <input type="radio" name="dt1" value="dt9" id="dt1dt9"><label for="dt1dt9">Fire</label>
+    <input type="radio" name="dt1" value="dt10" id="dt1dt10"><label for="dt1dt10">Water</label>
+    <input type="radio" name="dt1" value="dt11" id="dt1dt11"><label for="dt1dt11">Grass</label>
+    <input type="radio" name="dt1" value="dt12" id="dt1dt12"><label for="dt1dt12">Electric</label>
+    <input type="radio" name="dt1" value="dt13" id="dt1dt13"><label for="dt1dt13">Psychic</label>
+    <input type="radio" name="dt1" value="dt14" id="dt1dt14"><label for="dt1dt14">Ice</label>
+    <input type="radio" name="dt1" value="dt15" id="dt1dt15"><label for="dt1dt15">Dragon</label>
+    <input type="radio" name="dt1" value="dt16" id="dt1dt16"><label for="dt1dt16">Dark</label>
+    <input type="radio" name="dt1" value="dt17" id="dt1dt17"><label for="dt1dt17">Fairy</label>
+
+	<h3>Secondary Type</h3>
+    <input type="radio" name="dt2" value="dt-" id="dt2dt-" checked><label for="dt2dt-">None</label>
+    <input type="radio" name="dt2" value="dt0" id="dt2dt0"><label for="dt2dt0">Normal</label>
+    <input type="radio" name="dt2" value="dt1" id="dt2dt1"><label for="dt2dt1">Fighting</label>
+    <input type="radio" name="dt2" value="dt2" id="dt2dt2"><label for="dt2dt2">Flying</label>
+    <input type="radio" name="dt2" value="dt3" id="dt2dt3"><label for="dt2dt3">Poison</label>
+    <input type="radio" name="dt2" value="dt4" id="dt2dt4"><label for="dt2dt4">Ground</label>
+    <input type="radio" name="dt2" value="dt5" id="dt2dt5"><label for="dt2dt5">Rock</label>
+    <input type="radio" name="dt2" value="dt6" id="dt2dt6"><label for="dt2dt6">Bug</label>
+    <input type="radio" name="dt2" value="dt7" id="dt2dt7"><label for="dt2dt7">Ghost</label>
+    <input type="radio" name="dt2" value="dt8" id="dt2dt8"><label for="dt2dt8">Steel</label>
+    <input type="radio" name="dt2" value="dt9" id="dt2dt9"><label for="dt2dt9">Fire</label>
+    <input type="radio" name="dt2" value="dt10" id="dt2dt10"><label for="dt2dt10">Water</label>
+    <input type="radio" name="dt2" value="dt11" id="dt2dt11"><label for="dt2dt11">Grass</label>
+    <input type="radio" name="dt2" value="dt12" id="dt2dt12"><label for="dt2dt12">Electric</label>
+    <input type="radio" name="dt2" value="dt13" id="dt2dt13"><label for="dt2dt13">Psychic</label>
+    <input type="radio" name="dt2" value="dt14" id="dt2dt14"><label for="dt2dt14">Ice</label>
+    <input type="radio" name="dt2" value="dt15" id="dt2dt15"><label for="dt2dt15">Dragon</label>
+    <input type="radio" name="dt2" value="dt16" id="dt2dt16"><label for="dt2dt16">Dark</label>
+    <input type="radio" name="dt2" value="dt17" id="dt2dt17"><label for="dt2dt17">Fairy</label>
+	<div class="break"></div>
+
+	
+	<section class="ten">
+		<h3>Damaged normally by</h3>
+		<ul class="types">
+			<li class="at-">None</li>
+			<li class="at0">Normal</li>
+			<li class="at1">Fighting</li>
+			<li class="at2">Flying</li>
+			<li class="at3">Poison</li>
+			<li class="at4">Ground</li>
+			<li class="at5">Rock</li>
+			<li class="at6">Bug</li>
+			<li class="at7">Ghost</li>
+			<li class="at8">Steel</li>
+			<li class="at9">Fire</li>
+			<li class="at10">Water</li>
+			<li class="at11">Grass</li>
+			<li class="at12">Electric</li>
+			<li class="at13">Psychic</li>
+			<li class="at14">Ice</li>
+			<li class="at15">Dragon</li>
+			<li class="at16">Dark</li>
+			<li class="at17">Fairy</li>
+		</ul>
+	</section>
+	
+	<section class="tew">
+		<h3>Weak to</h3>
+		<ul class="types">
+			<li class="at-">None</li>
+			<li class="at0">Normal</li>
+			<li class="at1">Fighting</li>
+			<li class="at2">Flying</li>
+			<li class="at3">Poison</li>
+			<li class="at4">Ground</li>
+			<li class="at5">Rock</li>
+			<li class="at6">Bug</li>
+			<li class="at7">Ghost</li>
+			<li class="at8">Steel</li>
+			<li class="at9">Fire</li>
+			<li class="at10">Water</li>
+			<li class="at11">Grass</li>
+			<li class="at12">Electric</li>
+			<li class="at13">Psychic</li>
+			<li class="at14">Ice</li>
+			<li class="at15">Dragon</li>
+			<li class="at16">Dark</li>
+			<li class="at17">Fairy</li>
+		</ul>
+	</section>
+	
+	<section class="tei">
+		<h3>Immune to</h3>
+		<ul class="types">
+			<li class="at-">None</li>
+			<li class="at0">Normal</li>
+			<li class="at1">Fighting</li>
+			<li class="at2">Flying</li>
+			<li class="at3">Poison</li>
+			<li class="at4">Ground</li>
+			<li class="at5">Rock</li>
+			<li class="at6">Bug</li>
+			<li class="at7">Ghost</li>
+			<li class="at8">Steel</li>
+			<li class="at9">Fire</li>
+			<li class="at10">Water</li>
+			<li class="at11">Grass</li>
+			<li class="at12">Electric</li>
+			<li class="at13">Psychic</li>
+			<li class="at14">Ice</li>
+			<li class="at15">Dragon</li>
+			<li class="at16">Dark</li>
+			<li class="at17">Fairy</li>
+		</ul>
+	</section>
+
+	<section class="ter">
+		<h3>Resistant to</h3>
+		<ul class="types">
+			<li class="at-">None</li>
+			<li class="at0">Normal</li>
+			<li class="at1">Fighting</li>
+			<li class="at2">Flying</li>
+			<li class="at3">Poison</li>
+			<li class="at4">Ground</li>
+			<li class="at5">Rock</li>
+			<li class="at6">Bug</li>
+			<li class="at7">Ghost</li>
+			<li class="at8">Steel</li>
+			<li class="at9">Fire</li>
+			<li class="at10">Water</li>
+			<li class="at11">Grass</li>
+			<li class="at12">Electric</li>
+			<li class="at13">Psychic</li>
+			<li class="at14">Ice</li>
+			<li class="at15">Dragon</li>
+			<li class="at16">Dark</li>
+			<li class="at17">Fairy</li>
+		</ul>
+	</section>
+</section>
+</body>
+</html>
