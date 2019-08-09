@@ -105,6 +105,18 @@ namespace PokemonTypes
                 }
             }
 
+            var blacklistIrrelevantBattleModifier = blacklist.GroupBy(x => (x.defender1, x.defender2, x.attacker, x.effectiveness))
+                .Where(x => x.Count() >= 2)
+                .ToList();
+
+            blacklist = blacklist
+                .Except(blacklistIrrelevantBattleModifier.SelectMany(x => x))
+                .Union(blacklistIrrelevantBattleModifier
+                    .Select(x => x.First())
+                    .Select(x => (x.defender1, x.defender2, x.attacker, x.effectiveness, (BattleType?) null))
+                )
+                .ToList();
+
             var singleMatchups = new List<(Type defender, Type attacker, Effectiveness effectiveness, BattleType? battle)>(
                 allMatchups
                     .Where(m => m.defender1 == m.defender2)
