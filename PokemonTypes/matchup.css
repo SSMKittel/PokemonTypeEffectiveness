@@ -78,7 +78,8 @@ label
 }
 
 .at-, .at0, .at1, .at2, .at3, .at4, .at5, .at6, .at7, .at8, .at9, .at10, .at11, .at12, .at13, .at14, .at15, .at16, .at17,
-.dt-, .dt0, .dt1, .dt2, .dt3, .dt4, .dt5, .dt6, .dt7, .dt8, .dt9, .dt10, .dt11, .dt12, .dt13, .dt14, .dt15, .dt16, .dt17
+.dt-, .dt0, .dt1, .dt2, .dt3, .dt4, .dt5, .dt6, .dt7, .dt8, .dt9, .dt10, .dt11, .dt12, .dt13, .dt14, .dt15, .dt16, .dt17,
+.mi
 {
 	border-radius: 1.5em;
 	border-style: solid;
@@ -87,6 +88,12 @@ label
 	width: 10ch;
 	color: white;
 	text-shadow: -1px -1px 0 rgb(82, 82, 82), 1px -1px 0 rgb(82, 82, 82), -1px 1px 0 rgb(82, 82, 82), 1px 1px 0 rgb(82, 82, 82);
+}
+
+.mi
+{
+	background-color: DimGray;
+	border-color: DimGray;
 }
 
 .at-, .dt-
