@@ -16,14 +16,19 @@ h1 + h2
 	margin-top: 0;
 }
 
-h2 + h3
-{
-	margin-top: 0;
-}
-
-h1, h2, h3
+h1, h2
 {
 	flex-basis: 100%;
+}
+
+h1
+{
+	font-size: 18pt;
+}
+
+h2
+{
+	font-size: 14pt;
 }
 
 .ten, .tei, .ter, .tew
